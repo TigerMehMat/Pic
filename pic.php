@@ -2,9 +2,10 @@
 class Pic {
 	private $im;
 	
-	public function __construct(){
+	public function __construct($src){
 		$this->im = null;
 		$this->err = false;
+		$this->load($src);
 	}
 	
 	public function getErr(){//Получение последней ошибки
