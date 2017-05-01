@@ -12,7 +12,7 @@
 
 ```php
 <?php
-  var $im = new Pic('myImg.jpg');
+  $im = new Pic('myImg.jpg');
 ?>
 ```
 
