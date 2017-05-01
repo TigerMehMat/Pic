@@ -123,15 +123,29 @@ class Pic {
 		unset($im);
 		return true;
 	}
-	
-	/*public function fastSave($saves, $dir = false, $type = false){//Быстрое сохранение копий изображение с разными размерами в одной папке
+
+	public function qSave($saves, $dir = '', $type = null){//Быстрое сохранение копий изображение с разными размерами в одной папке
 		for($i=0;$i<count($saves);$i++){
-			
+			if($saves[$i][0]!==null){
+				$im1 = clone $this;
+				$im1->resize($saves[$i][0][0], $saves[$i][0][1], $saves[$i][0][2]??'stretch', $saves[$i][0][3]??[255, 255, 255]);
+				$im1->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
+			} else {
+				$this->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
+			}
 		}
 	}
-	*/
-	public function copy(){//Возврощает копию данного объекта
-		return clone $this;
+
+	public function __clone(){//Возврощает копию данного объекта
+		$im = $this;
+		$imim = imagecreatetruecolor(imagesx($this->im), imagesy($this->im));
+		imagecopy($imim, $this->im, 0, 0, 0, 0, imagesx($this->im), imagesy($this->im));
+		$im->setIm($imim);
+		return $im;
+	}
+	
+	public function setIm($im){
+		$this->im = $im;
 	}
 	
 	public function __destruct(){
