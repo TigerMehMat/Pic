@@ -16,10 +16,8 @@ class Pic {
 			$this->err = 'Image not found';
 			return false;
 		}
-		if($this->im!==null){
-			$this->err = "Image not empty";
-			return false;
-		}
+		if($this->im!==null)
+			imagedestroy($this->im);
 		$mime = mime_content_type($src);
 		switch($mime){
 			case('image/jpeg'):
@@ -70,7 +68,7 @@ class Pic {
 		return true;
 	}
 	
-	public function resize($width, $height, $type = 'translate', $bg_color = [255, 255, 255]){//Изменение размера изображения (ширина, высота, тип_изменения [translate;inc;gain], цвет)
+	public function resize($width, $height, $type = 'stretch', $bg_color = [255, 255, 255]){//Изменение размера изображения (ширина, высота, тип_изменения [stretch;inc;gain], цвет)
 		if($this->im === null){
 			$this->err = 'Image is NULL';
 			return false;
@@ -79,10 +77,10 @@ class Pic {
 		$bg = imagecolorallocate($im, $bg_color[0], $bg_color[1], $bg_color[2]);
 		imagefill($im, 0, 0, $bg);
 		switch($type){
-			case('translate'):
+			case('stretch'):
 				imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, imagesx($this->im), imagesy($this->im));
 				break;
-			case('inc'):
+			case('approx'):
 				$c1 = imagesx($this->im)/imagesy($this->im);
 				$c2 = $width/$height;
 				switch($c1<=>$c2){
@@ -99,7 +97,7 @@ class Pic {
 						break;
 				}
 				break;
-			case('gain'):
+			case('upbuild'):
 				$c1 = imagesx($this->im)/imagesy($this->im);
 				$c2 = $width/$height;
 				switch($c1<=>$c2){
