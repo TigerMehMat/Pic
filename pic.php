@@ -130,6 +130,7 @@ class Pic {
 				$im1 = clone $this;
 				$im1->resize($saves[$i][0][0], $saves[$i][0][1], $saves[$i][0][2]??'stretch', $saves[$i][0][3]??[255, 255, 255]);
 				$im1->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
+				unset $im1;
 			} else {
 				$this->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
 			}
