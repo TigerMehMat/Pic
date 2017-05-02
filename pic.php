@@ -1,6 +1,6 @@
 <?php
 /*
-Version: 0.3 beta correct 2
+Version: 0.3 beta correct 3
 */
 class Pic {
 	private $im;
@@ -145,6 +145,14 @@ class Pic {
 			}
 		}
 	}
+	
+	public function setIm($im){
+		$this->im = $im;
+	}
+	
+	public function imageInfo(){
+		return [imagesx($this->im), imagesy($this->im)];
+	}
 
 	public function __clone(){//Возврощает копию данного объекта
 		$im = $this;
@@ -154,12 +162,9 @@ class Pic {
 		return $im;
 	}
 	
-	public function setIm($im){
-		$this->im = $im;
-	}
-	
 	public function __destruct(){
 		if($this->im !== null)
 			imagedestroy($this->im);
+		unset($this->standart);
 	}
 }
