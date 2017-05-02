@@ -1,5 +1,6 @@
 <?php
 /*
+Version: 0.3 beta correct 2
 */
 class Pic {
 	private $im;
