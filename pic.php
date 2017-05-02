@@ -1,6 +1,6 @@
 <?php
 /*
-Version: 0.3 beta correct 3
+Version: 0.3 beta correct 4
 */
 class Pic {
 	private $im;
@@ -83,6 +83,8 @@ class Pic {
 			$this->err = 'Image is NULL';
 			return false;
 		}
+		$width = $width??imagesx($this->im);
+		$height = $height??imagesy($this->im);
 		$im = imagecreatetruecolor($width, $height);
 		$bg = imagecolorallocate($im, $bg_color[0], $bg_color[1], $bg_color[2]);
 		imagefill($im, 0, 0, $bg);
