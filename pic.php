@@ -1,6 +1,14 @@
 <?php
+/*
+*/
 class Pic {
 	private $im;
+	private $standart = [
+		'MIME' => 'image/jpeg',
+		'PNGlvl' => 9,
+		'JPEGlvl' => 75,
+		'resizetype' => 'stretch'
+	];
 	
 	public function __construct($src){
 		$this->im = null;
@@ -42,16 +50,16 @@ class Pic {
 			$this->err = 'Image is NULL';
 			return false;
 		}
-		switch($mime??'image/jpeg'){
+		switch($mime??$this->standat['MIME']){
 			case('image/jpeg'):
-				$r = imagejpeg($this->im, $src, $level ?? 75);
+				$r = imagejpeg($this->im, $src, $level??$this->standrat['JPEGlvl']);
 				if(!$r){
 					$this->err = 'ImageJPEG not be saved';
 					return false;
 				}
 				break;
 			case('image/png'):
-				$r = imagepng($this->im, $src, $level ?? 8);
+				$r = imagepng($this->im, $src, $level??$this->standart['PNGlvl']);
 				if(!$r){
 					$this->err = 'ImagePNG not be saved';
 					return false;
@@ -69,7 +77,7 @@ class Pic {
 		return true;
 	}
 	
-	public function resize($width, $height, $type = 'stretch', $bg_color = [255, 255, 255]){//Изменение размера изображения (ширина, высота, тип_изменения [stretch;inc;gain], цвет)
+	public function resize($width, $height, $type = null, $bg_color = [255, 255, 255]){//Изменение размера изображения (ширина, высота, тип_изменения [stretch;approx;upbuild], цвет [r, g, b])
 		if($this->im === null){
 			$this->err = 'Image is NULL';
 			return false;
@@ -77,7 +85,7 @@ class Pic {
 		$im = imagecreatetruecolor($width, $height);
 		$bg = imagecolorallocate($im, $bg_color[0], $bg_color[1], $bg_color[2]);
 		imagefill($im, 0, 0, $bg);
-		switch($type){
+		switch($type??$this->standart['resizetype']){
 			case('stretch'):
 				imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, imagesx($this->im), imagesy($this->im));
 				break;
