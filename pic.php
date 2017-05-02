@@ -37,12 +37,12 @@ class Pic {
 		return true;
 	}
 	
-	public function save($src, $mime = 'image/jpeg', $level = null){//сохранение картинки (путь_сохранения, MIME-тип, качество)
+	public function save($src, $mime = null, $level = null){//сохранение картинки (путь_сохранения, MIME-тип, качество)
 		if($this->im === null){
 			$this->err = 'Image is NULL';
 			return false;
 		}
-		switch($mime){
+		switch($mime??'image/jpeg'){
 			case('image/jpeg'):
 				$r = imagejpeg($this->im, $src, $level ?? 75);
 				if(!$r){
@@ -129,10 +129,10 @@ class Pic {
 			if($saves[$i][0]!==null){
 				$im1 = clone $this;
 				$im1->resize($saves[$i][0][0], $saves[$i][0][1], $saves[$i][0][2]??'stretch', $saves[$i][0][3]??[255, 255, 255]);
-				$im1->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
+				$im1->save($dir.$saves[$i][1], $saves[$i][2]??$type, $saves[$i][3]??null);
 				unset $im1;
 			} else {
-				$this->save($dir.$saves[$i][1], $saves[$i][2]??$type??'image/jpeg', $saves[$i][3]??null);
+				$this->save($dir.$saves[$i][1], $saves[$i][2]??$type, $saves[$i][3]??null);
 			}
 		}
 	}
