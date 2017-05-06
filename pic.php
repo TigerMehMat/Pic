@@ -1,6 +1,6 @@
 <?php
 /*
-Version: 0.3 beta correct 4
+Version: 0.4 beta
 */
 class Pic {
 	private $im;
@@ -10,18 +10,19 @@ class Pic {
 		'JPEGlvl' => 75,
 		'resizetype' => 'stretch'
 	];
+	private $size = [null, null];
 	
-	public function __construct($src){
+	public function __construct($src) {
 		$this->im = null;
 		$this->err = false;
 		$this->load($src);
 	}
 	
-	public function getErr(){//Получение последней ошибки
+	public function getErr():?string{//Получение последней ошибки
 		return $this->err;
 	}
 	
-	public function load($src){//подгрузка ЛОКАЛЬНОЙ картинки (адрес)
+	public function load($src):bool {//подгрузка ЛОКАЛЬНОЙ картинки (адрес)
 		if(!file_exists($src)){
 			$this->err = 'Image not found';
 			return false;
@@ -43,10 +44,15 @@ class Pic {
 				$this->err = 'Not supported MIME-type ('.$mime.')';
 				return false;
 		}
+		if(!$this->im){
+			$this->im = null;
+			return false;
+		}
+		$this->updateSize();
 		return true;
 	}
 	
-	public function save($src, $mime = null, $level = null){//сохранение картинки (путь_сохранения, MIME-тип, качество)
+	public function save($src, $mime = null, $level = null):bool {//сохранение картинки (путь_сохранения, MIME-тип, качество)
 		if($this->im === null){
 			$this->err = 'Image is NULL';
 			return false;
@@ -78,51 +84,52 @@ class Pic {
 		return true;
 	}
 	
-	public function resize($width, $height, $type = null, $bg_color = [255, 255, 255]){//Изменение размера изображения (ширина, высота, тип_изменения [stretch;approx;upbuild], цвет [r, g, b])
+	public function resize($width, $height, $type = null, $bg_color = [255, 255, 255]):bool {
+		//Изменение размера изображения (ширина, высота, тип_изменения [stretch;approx;upbuild], цвет [r, g, b])
 		if($this->im === null){
 			$this->err = 'Image is NULL';
 			return false;
 		}
-		$width = $width??imagesx($this->im);
-		$height = $height??imagesy($this->im);
+		$width = $width??$this->size[0];
+		$height = $height??$this->size[1];
 		$im = imagecreatetruecolor($width, $height);
 		$bg = imagecolorallocate($im, $bg_color[0], $bg_color[1], $bg_color[2]);
 		imagefill($im, 0, 0, $bg);
 		switch($type??$this->standart['resizetype']){
 			case('stretch'):
-				imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, imagesx($this->im), imagesy($this->im));
+				imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, $this->size[0], $this->size[1]);
 				break;
 			case('approx'):
-				$c1 = imagesx($this->im)/imagesy($this->im);
+				$c1 = $this->size[0]/$this->size[1];
 				$c2 = $width/$height;
 				switch($c1<=>$c2){
 					case(1):
-						$wr = imagesy($this->im)*$width/$height;
-						imagecopyresized($im, $this->im, 0, 0, (int)((imagesx($this->im)-$wr)/2), 0, $width, $height, $wr, imagesy($this->im));
+						$wr = $this->size[1]*$width/$height;
+						imagecopyresized($im, $this->im, 0, 0, (int)(($this->size[0]-$wr)/2), 0, $width, $height, $wr, $this->size[1]);
 						break;
 					case(0):
-						imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, imagesx($this->im), imagesy($this->im));
+						imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, $this->size[0], $this->size[1]);
 						break;
 					case(-1):
-						$hr = imagesx($this->im)*$height/$width;
-						imagecopyresized($im, $this->im, 0, 0, 0, (int)((imagesy($this->im)-$hr)/2), $width, $height, imagesx($this->im), $hr);
+						$hr = $this->size[0]*$height/$width;
+						imagecopyresized($im, $this->im, 0, 0, 0, (int)(($this->size[1]-$hr)/2), $width, $height, $this->size[0], $hr);
 						break;
 				}
 				break;
 			case('upbuild'):
-				$c1 = imagesx($this->im)/imagesy($this->im);
+				$c1 = $this->size[0]/$this->size[1];
 				$c2 = $width/$height;
 				switch($c1<=>$c2){
 					case(1):
-						$hr = (int)(imagesy($this->im)*$width/imagesx($this->im));
-						imagecopyresized($im, $this->im, 0, (int)(($height-$hr)/2), 0, 0, $width, $hr, imagesx($this->im), imagesy($this->im));
+						$hr = (int)($this->size[1]*$width/$this->size[0]);
+						imagecopyresized($im, $this->im, 0, (int)(($height-$hr)/2), 0, 0, $width, $hr, $this->size[0], $this->size[1]);
 						break;
 					case(0):
-						imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, imagesx($this->im), imagesy($this->im));
+						imagecopyresized($im, $this->im, 0, 0, 0, 0, $width, $height, $this->size[0], $this->size[1]);
 						break;
 					case(-1):
-						$wr = imagesx($this->im)*$height/imagesy($this->im);
-						imagecopyresized($im, $this->im, (int)(($width-$wr)/2), 0, 0, 0, $wr, $height, imagesx($this->im), imagesy($this->im));
+						$wr = $this->size[0]*$height/$this->size[1];
+						imagecopyresized($im, $this->im, (int)(($width-$wr)/2), 0, 0, 0, $wr, $height, $this->size[0], $this->size[1]);
 						break;
 				}
 				break;
@@ -135,7 +142,7 @@ class Pic {
 		return true;
 	}
 
-	public function qSave($saves, $dir = '', $type = null){//Быстрое сохранение копий изображение с разными размерами в одной папке
+	public function qSave($saves, $dir = '', $type = null):void {//Быстрое сохранение копий изображение с разными размерами в одной папке
 		for($i=0;$i<count($saves);$i++){
 			if($saves[$i][0]!==null){
 				$im1 = clone $this;
@@ -148,25 +155,31 @@ class Pic {
 		}
 	}
 	
-	public function setIm($im){
+	public function setIm($im):void {
 		$this->im = $im;
 	}
 	
-	public function imageInfo(){
-		return [imagesx($this->im), imagesy($this->im)];
+	public function imageInfo():array {
+		return $this->size;
+	}
+	
+	private function updateSize():void {
+		$this->size[0] = imagesx($this->im);
+		$this->size[1] = imagesy($this->im);
 	}
 
-	public function __clone(){//Возврощает копию данного объекта
+	public function __clone():Pic {//Возврощает копию данного объекта
 		$im = $this;
-		$imim = imagecreatetruecolor(imagesx($this->im), imagesy($this->im));
-		imagecopy($imim, $this->im, 0, 0, 0, 0, imagesx($this->im), imagesy($this->im));
+		$imim = imagecreatetruecolor($this->size[0], $this->size[1]);
+		imagecopy($imim, $this->im, 0, 0, 0, 0, $this->size[0], $this->size[1]);
 		$im->setIm($imim);
 		return $im;
 	}
 	
-	public function __destruct(){
+	public function __destruct():void {
 		if($this->im !== null)
 			imagedestroy($this->im);
 		unset($this->standart);
+		unset($this->size);
 	}
 }
