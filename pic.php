@@ -1,6 +1,6 @@
 <?php
 /*
-Version: 1.0 Stable
+Version: 1.0.1 Stable
 */
 class Pic {
 	private $im;
@@ -56,6 +56,10 @@ class Pic {
 	}
 	
 	public function loadURL($url, $tmp_file=null){//Загрузка сторонней картинки
+		if(!filter_var($url, FILTER_VALIDATE_URL)){
+			$this->err = 'url to load not valid';
+			return false;
+		}
 		if($tmp_file==null){
 			$i = 1;
 			while(file_exists($i.'.tmp'))
